@@ -1,0 +1,19 @@
+defaults:
+  - _self_
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+Data:
+  pc_folder: "data/pc"
+  gt_folder: "data/gt"
+  results_path: "data/80_epoch_base.json"
+Params:
+  iou threshold: 0.4
+  size th: [0.5, 0.5, 0.5]
+  min points: 20
+
