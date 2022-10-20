@@ -2,6 +2,8 @@ import json
 import pickle
 from copy import deepcopy
 from glob import glob
+from random import shuffle
+
 import hydra
 import numpy as np
 from omegaconf import DictConfig
@@ -31,6 +33,7 @@ def extend(box, scale=2):
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg: DictConfig) -> None:
     data = load_data(cfg['Data']['pc_folder'], cfg['Data']['results_path'], cfg['Data']['gt_folder'])
+    shuffle(data)
     for (points, results, gt) in data:
         # Set usefull outputs
         useful_keys = ('pred_iou_scores', 'boxes_lidar', 'score', 'name')
@@ -51,7 +54,7 @@ def main(cfg: DictConfig) -> None:
                 V.draw_scenes(
                     points=points, ref_boxes=np.array([box]),
                     ref_scores=torch.sigmoid(torch.tensor([score])), ref_labels=None,
-                    gt_boxes=gt, area=extended_box
+                    gt_boxes=None, area=extended_box
                 )
 
 

@@ -42,7 +42,7 @@ def check_scene(points, bbox, min_points):
     pts.points = open3d.utility.Vector3dVector(points[:, :3])
     _, area_bbox = translate_boxes_to_open3d_instance(bbox)
     pts = pts.crop(area_bbox)
-    return len(np.asarray(pts.points)) > min_points
+    return (len(np.asarray(pts.points)) > min_points) and np.all(bbox[3:6] > 0.3)
 
 
 
@@ -94,15 +94,18 @@ def draw_scenes(points, gt_boxes=None, ref_boxes=None, ref_labels=None, ref_scor
         vis, colored_box = draw_box(vis, ref_boxes, (0, 1, 0), ref_labels, score=ref_scores,
                                     min_bound=min_bound, max_bound=max_bound, translation=translation_vector)
         # Paint points in bbox
-        indices = colored_box.get_point_indices_within_bounding_box(pts.points)
-        colored_points = pts.select_by_index(indices, invert=False)
-        shape = (len(np.asarray(colored_points.points)), 1)
-        colors = np.hstack((np.ones(shape), np.zeros(shape), np.zeros(shape)))
-        colored_points.colors = open3d.utility.Vector3dVector(colors)
+        if colored_box is not None:
+            indices = colored_box.get_point_indices_within_bounding_box(pts.points)
+            colored_points = pts.select_by_index(indices, invert=False)
+            shape = (len(np.asarray(colored_points.points)), 1)
+            colors = np.hstack((np.ones(shape), np.zeros(shape), np.zeros(shape)))
+            colored_points.colors = open3d.utility.Vector3dVector(colors)
 
-        other_points = pts.select_by_index(indices, invert=True)
-        vis.add_geometry(colored_points)
-        vis.add_geometry(other_points)
+            other_points = pts.select_by_index(indices, invert=True)
+            vis.add_geometry(colored_points)
+            vis.add_geometry(other_points)
+        else:
+            vis.add_geometry(pts)
     else:
         vis.add_geometry(pts)
 
